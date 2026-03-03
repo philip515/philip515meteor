@@ -171,6 +171,22 @@
       transition:all 0.15s;
     }
     #start-btn:active { background:rgba(0,245,255,0.15); transform:scale(0.96); }
+    #fs-btn {
+      font-family:'Orbitron',sans-serif;
+      font-size:clamp(11px,3.5vw,15px);
+      font-weight:700; letter-spacing:1px;
+      padding:10px 28px;
+      border:2px solid rgba(255,230,0,0.6);
+      background:transparent; color:var(--yellow);
+      border-radius:6px;
+      text-shadow:0 0 6px var(--yellow);
+      box-shadow:0 0 14px rgba(255,230,0,0.2);
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      transition:all 0.15s;
+    }
+    #fs-btn:active { background:rgba(255,230,0,0.15); transform:scale(0.96); }
+    #fs-btn.hidden { display:none; }
     .ctrl-hint {
       display:flex; gap:28px; align-items:center; margin-top:4px;
     }
@@ -221,6 +237,7 @@
   <p class="sub" id="ov-sub">Destroy asteroids. Survive the void.</p>
   <div class="final-score" id="ov-score" style="display:none"></div>
   <div class="final-score" id="ov-best" style="display:none;font-size:clamp(14px,4vw,22px);color:#ff006e;text-shadow:0 0 14px #ff006e;"></div>
+  <button id="fs-btn">⛶ GO FULLSCREEN</button>
   <button id="start-btn">▶ START GAME</button>
   <div class="ctrl-hint">
     <div class="hint-item">
@@ -758,6 +775,31 @@ function triggerGameOver(){
 
 startBtn.addEventListener("click", startGame);
 startBtn.addEventListener("touchstart", e=>{ e.preventDefault(); startGame(); },{passive:false});
+
+// ── Fullscreen button ─────────────────────────────
+const fsBtn = document.getElementById("fs-btn");
+
+function enterFullscreen() {
+  const el = document.documentElement;
+  if      (el.requestFullscreen)       el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  else if (el.mozRequestFullScreen)    el.mozRequestFullScreen();
+}
+
+// Hide fullscreen button if already fullscreen or not supported
+function updateFsBtn() {
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  const supported = document.documentElement.requestFullscreen ||
+                    document.documentElement.webkitRequestFullscreen;
+  fsBtn.classList.toggle("hidden", !!(isFs || !supported));
+}
+
+document.addEventListener("fullscreenchange",       updateFsBtn);
+document.addEventListener("webkitfullscreenchange", updateFsBtn);
+
+fsBtn.addEventListener("click",      () => enterFullscreen());
+fsBtn.addEventListener("touchstart", e => { e.preventDefault(); enterFullscreen(); }, {passive:false});
+updateFsBtn();
 
 // ── Game loop ────────────────────────────────────
 function gameLoop(){
